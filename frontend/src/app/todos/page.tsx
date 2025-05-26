@@ -32,25 +32,39 @@ export default function Todos() {
     setTodos(todos.filter(t => t._id !== id));
   };
 
-  const logout = async () => {
-    await API.post('/auth/logout');
-    router.push('/login');
-  };
 
   return (
-    <div className='container'>
-      <h2>Todo List</h2>
-      <button onClick={logout}>Logout</button>
-      <input value={text} onChange={e => setText(e.target.value)} placeholder="New todo" />
-      <button onClick={addTodo}>Add</button>
-      <ul>
-        {todos.map(todo => (
-          <li key={todo._id}>
-            {todo.text}
-            <button onClick={() => deleteTodo(todo._id)}>X</button>
-          </li>
-        ))}
-      </ul>
+    <div className='container my-5'>
+        <div className="row justify-content-center">
+    <div className="col-lg-6 col-md-8 col-9">
+      <div className="card shadow-sm">
+        <div className="card-header bg-primary text-white">
+          <h4 className="mb-0">Cosas x Hacer</h4>
+        </div>
+        <div className="card-body">
+          <form id="todo-form" className="d-flex mb-3">
+            <input
+              type="text"
+              id="task-input"
+              className="form-control me-2"
+              required
+               value={text} onChange={e => setText(e.target.value)} placeholder="Nuevo Que Hacer"
+            />
+            <button type="submit" className="btn btn-primary"  onClick={addTodo}>Add</button>
+          </form>
+          <ul className="list-group" id="task-list">
+              {todos.map(todo => (
+                <li key={todo._id} className='list-group-item d-flex justify-content-between align-items-center'>
+                  {todo.text}
+                  <button className='btn btn-danger btn-sm' onClick={() => deleteTodo(todo._id)}>X</button>
+                </li>
+              ))}
+          </ul>
+        </div>
+      </div>
     </div>
+  </div>
+    </div>
+
   );
 }
