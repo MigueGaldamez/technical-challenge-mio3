@@ -1,9 +1,10 @@
 'use client';
-
+import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import API from '../../utils/api';
 import { Todo } from '../../types/todo';
+import { formatDateDDMMYYYY } from '@/utils/date.utils';
 
 export default function Todos() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -32,7 +33,10 @@ export default function Todos() {
     setTodos(todos.filter(t => t._id !== id));
   };
 
-
+  const handleDoubleClick  = async (id: string) => {
+    await API.post(`/todos/completar/${id}`,{});
+    await fetchTodos();
+  };
   return (
     <div className='container my-5'>
         <div className="row justify-content-center">
@@ -50,12 +54,21 @@ export default function Todos() {
               required
                value={text} onChange={e => setText(e.target.value)} placeholder="Nuevo Que Hacer"
             />
-            <button type="submit" className="btn btn-primary"  onClick={addTodo}>Add</button>
+            <button  className="btn btn-primary"  onClick={addTodo}>Add</button>
           </form>
           <ul className="list-group" id="task-list">
               {todos.map(todo => (
-                <li key={todo._id} className='list-group-item d-flex justify-content-between align-items-center'>
-                  {todo.text}
+                <li key={todo._id}
+                className={classNames('list-group-item d-flex justify-content-between align-items-center ')}
+                onDoubleClick={() => handleDoubleClick(todo._id)}>
+                
+                <div>
+                       <span  className={classNames('d-block',{
+                  "text-decoration-line-through": todo.completado == true,
+                })}>  {todo.text}</span>
+                  {todo.fechaHoraCompletado && <small className='d-block '>Completado {formatDateDDMMYYYY(todo.fechaHoraCompletado)}</small>}
+                </div>
+
                   <button className='btn btn-danger btn-sm' onClick={() => deleteTodo(todo._id)}>X</button>
                 </li>
               ))}

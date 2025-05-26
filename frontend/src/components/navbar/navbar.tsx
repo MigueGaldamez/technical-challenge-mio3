@@ -23,7 +23,7 @@ export default function Navbar() {
           <a className="nav-link active text-light fw-semibold" aria-current="page" href="#"><span className="fw-light text-uppercase">Grupos</span></a>
         </li>
         <li className="nav-item">
-          <a className="nav-link text-light" href="#">Mi Lista</a>
+           <Link  className="nav-link text-light" href="/todos">Mi Lista</Link>
         </li>
      
         

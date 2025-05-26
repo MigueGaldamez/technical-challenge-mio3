@@ -26,3 +26,26 @@ exports.deleteTodo = async (req, res) => {
   if (!result) return res.status(404).json({ message: 'Todo not found' });
   res.status(204).end();
 };
+
+exports.completarTodo = async (req, res) => {
+const todo = await Todo.findOne({ _id: req.params.id, user: req.userId });
+
+if (!todo) {
+  return res.status(404).json({ message: 'Todo not found' });
+}
+
+todo.completado = !todo.completado;
+if(todo.completado){
+todo.usuarioCompleta = req.userId;
+todo.fechaHoraCompletado = new Date();
+}else{
+  todo.usuarioCompleta = null;
+todo.fechaHoraCompletado = null;
+}
+
+
+
+await todo.save();
+
+res.json(todo);
+};
