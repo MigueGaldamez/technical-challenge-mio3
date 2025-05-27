@@ -57,6 +57,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 // Hook for consuming the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error('Error');
   return context;
 };

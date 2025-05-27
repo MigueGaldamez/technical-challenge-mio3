@@ -9,5 +9,7 @@ router.put('/:id', auth, todoCtrl.updateTodo);
 router.delete('/:id', auth, todoCtrl.deleteTodo);
 
 router.post('/completar/:id', auth, todoCtrl.completarTodo);
+router.get('/grupo/:id', auth, todoCtrl.getTodosGrupo);
+
 
 module.exports = router;
