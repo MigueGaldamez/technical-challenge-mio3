@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
+import Notifications from '../notifications/notifications';
 
 export default function Navbar() {
      const { user, logout, loading } = useAuth();
@@ -11,7 +12,9 @@ export default function Navbar() {
     <nav>
       {user ? (
         <>
+        
          <nav className="navbar navbar-expand-lg bg-primary text-light py-2">
+           <Notifications userId={user._id} />
   <div className="container-fluid px-5">
     <Link  className="navbar-brand text-light" href="/">PM To-Do</Link>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

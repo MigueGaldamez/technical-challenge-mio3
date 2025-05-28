@@ -5,5 +5,7 @@ const ctrl = require('../controllers/groupController');
 
 router.get('/', auth, ctrl.getGroups);
 router.post('/', auth, ctrl.createGroup);
+router.post('/join/:id', auth, ctrl.joinGroup);
+
 
 module.exports = router;

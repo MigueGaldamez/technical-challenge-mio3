@@ -4,6 +4,8 @@ export interface Todo {
   completado?:boolean;
   fechaHoraCompletado?:Date,
   usuarioCompleta:string;
+
+  user?:any;
 }
 
 export interface UserForm {

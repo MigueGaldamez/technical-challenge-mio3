@@ -7,11 +7,12 @@ import { Group } from '@/types/Group';
 import { setgroups } from 'process';
 import { Todo } from '@/types/todo';
 import { formatDateDDMMYYYY } from '@/utils/date.utils';
+import { useAuth } from '../context/AuthContext';
 
 export default function Todos() {
   const [grupos, setGrupos] = useState<Group[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
-
+  const { user, logout, loading } = useAuth();
   const [text, setText] = useState('');
   const [description, setDescription] = useState('');
 
@@ -20,6 +21,18 @@ export default function Todos() {
 const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
 const [showSidebar, setShowSidebar] = useState(false);
 
+  const [copied, setCopied] = useState(false);
+  const textToCopy = "http://localhost:3000/join/";
+
+  const handleCopy = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(textToCopy+id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  }
   const router = useRouter();
 
   useEffect(() => {
@@ -32,14 +45,12 @@ const [showSidebar, setShowSidebar] = useState(false);
     const res = await API.get('/group');
     setGrupos(res.data);
   };
-
-  const fetchTodosGrupo = async () => {
-    console.log(selectedGroup?._id)
-    if(selectedGroup?._id){
-        const res = await API.get('/todos/grupo/'+selectedGroup?._id);
-      setTodos(res.data);
-    }
-  };
+const fetchTodosGrupo = async (group) => {
+  if (group?._id) {
+    const res = await API.get('/todos/grupo/' + group._id);
+    setTodos(res.data);
+  }
+};
 
   const addGroup= async () => {
     const res = await API.post('/group', { text,description });
@@ -51,7 +62,16 @@ const [showSidebar, setShowSidebar] = useState(false);
     setTodos([...todos, res.data]);
     setText('');
   };
+const deleteTodo = async (id: string) => {
+    await API.delete(`/todos/${id}`);
+    setTodos(todos.filter(t => t._id !== id));
+  };
 
+  const handleDoubleClick  = async (id: string) => {
+    await API.post(`/todos/completar/${id}`,{});
+    await fetchTodosGrupo(selectedGroup);
+
+  };
 
   return (
     <div className='container my-5'>
@@ -95,7 +115,7 @@ const [showSidebar, setShowSidebar] = useState(false);
                 onClick={() => {
                   setSelectedGroup(todo);
                   setShowSidebar(true);
-                  fetchTodosGrupo();
+                  fetchTodosGrupo(todo);
                 }}
                 className={classNames('list-group-item d-flex justify-content-between align-items-center', {
                   'bg-light': selectedGroup?._id === todo._id
@@ -107,7 +127,14 @@ const [showSidebar, setShowSidebar] = useState(false);
                     <small className='d-block'>{todo.description}</small>
                 </div>
                 <div>
-                    <button className='btn btn-pine btn-sm'>Invitar</button>
+                  {todo.owner._id === user?._id && (
+                   <button className='btn btn-pine btn-sm' onClick={() => handleCopy(todo._id)}>
+                        {copied ? 'Copiado!' : 'Invitar'}
+                      </button>
+                  )}
+                   {todo.owner._id !== user?._id && (
+                    <span>Creado Por: {todo.owner.username}</span>
+                  )}
                 </div>
                 </li>
               ))}
@@ -125,26 +152,26 @@ const [showSidebar, setShowSidebar] = useState(false);
     </div>
   {todos.map(todo => (
                 <li key={todo._id}
-                className={classNames('list-group-item d-flex justify-content-between align-items-center ')}
-             >
+                className={classNames('list-group-item d-flex justify-content-between align-items-center mt-2')}
+              onDoubleClick={() => handleDoubleClick(todo._id)}>
                 
-                <div>
+                <div >
                        <span  className={classNames('d-block',{
                   "text-decoration-line-through": todo.completado == true,
-                })}>  {todo.text}</span>
+                })}>  {todo.text} </span>
                   {todo.fechaHoraCompletado && <small className='d-block '>Completado {formatDateDDMMYYYY(todo.fechaHoraCompletado)}</small>}
                 </div>
 
-                  <button className='btn btn-danger btn-sm'>X</button>
+                  <button className='btn btn-danger btn-sm' onClick={() => deleteTodo(todo._id)}>X</button>
                 </li>
               ))}
+              <hr />
     <form onSubmit={(e) => {
       e.preventDefault();
       // Submit your value here
       console.log("Adding value to group:", selectedGroup._id);
     }}>
-      <div className="mb-3">
-        <label className="form-label">Agregar Valor</label>
+      <div className="mb-3 d-flex">
        <input
               type="text"
               id="task-input"
@@ -152,8 +179,9 @@ const [showSidebar, setShowSidebar] = useState(false);
               required
                value={todoText} onChange={e => setTodoText(e.target.value)} placeholder="Nuevo Que Hacer"
             />
+               <button  className="btn btn-success btn-sm"  onClick={addTodo}>Agregar</button>
       </div>
-    <button  className="btn btn-success"  onClick={addTodo}>Agregar</button>
+      
     </form>
   </div>
 )}

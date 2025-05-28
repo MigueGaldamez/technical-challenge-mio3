@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const groupDetailSchema = new mongoose.Schema({
+const notificationSchema = new mongoose.Schema({
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
+  description:    { type: String, default: 'Nueva Tarea Registrada' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  role: { type: String, default: 'member' }, // e.g. admin, member
   notificationSettings: {
     receiveNotifications: { type: Boolean, default: true },
-    // other prefs
   }
 });
 
-const GroupDetail = mongoose.model('GroupDetail', groupDetailSchema);
+
+module.exports = mongoose.model('Notification', notificationSchema);
