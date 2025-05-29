@@ -46,16 +46,20 @@ export default function Todos() {
           <h4 className="mb-0">Cosas x Hacer</h4>
         </div>
         <div className="card-body">
-          <form id="todo-form" className="d-flex mb-3">
+          <div id="todo-form" className="d-flex mb-3">
             <input
               type="text"
               id="task-input"
               className="form-control me-2"
               required
-               value={text} onChange={e => setText(e.target.value)} placeholder="Nuevo Que Hacer"
+               value={text} onChange={e => setText(e.target.value)}  onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  addTodo();
+                }
+              }} placeholder="Nuevo Que Hacer"
             />
             <button  className="btn btn-primary"  onClick={addTodo}>Add</button>
-          </form>
+          </div>
           <ul className="list-group" id="task-list">
               {todos.map(todo => (
                 <li key={todo._id}

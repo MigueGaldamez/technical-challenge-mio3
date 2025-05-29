@@ -60,7 +60,7 @@ const fetchTodosGrupo = async (group) => {
   const addTodo = async () => {
     const res = await API.post('/todos', { text:todoText, group:selectedGroup?._id });
     setTodos([...todos, res.data]);
-    setText('');
+    setTodoText('');
   };
 const deleteTodo = async (id: string) => {
     await API.delete(`/todos/${id}`);

@@ -3,18 +3,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import API from '../../utils/api'; // your Axios instance
 import { useRouter } from 'next/navigation';
+import { User } from '@/types/User';
 
-type User = {
-  _id: string;
-  username: string;
-  // add more fields as needed
-};
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   logout: () => Promise<void>;
-    refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,7 +50,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Hook for consuming the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('Error');

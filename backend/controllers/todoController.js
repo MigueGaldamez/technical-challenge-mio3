@@ -28,7 +28,7 @@ exports.createTodo = async (req, res) => {
 
       for (const x of grupo.members) {
         const us = await User.findOne({ _id: x });
-         const notificationDet = new NotificationDetail({ nonotificationId:noti._id, userId:req.user.userId,read:false});
+         const notificationDet = new NotificationDetail({ notificationId:noti._id, userId:us._id,read:false});
         await notificationDet.save();
         console.log(notificationDet);
       }
@@ -50,7 +50,7 @@ exports.updateTodo = async (req, res) => {
 };
 
 exports.deleteTodo = async (req, res) => {
-  const result = await Todo.findOneAndDelete({ _id: req.params.id, user: req.user.userId });
+  const result = await Todo.findOneAndDelete({ _id: req.params.id });
   if (!result) return res.status(404).json({ message: 'Todo not found' });
   res.status(204).end();
 };
