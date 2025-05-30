@@ -1,51 +1,71 @@
-# 📝 Prueba Tecnica Miguel G.
-📌 Proyecto Todo List – API y Frontend
-📝 Descripción del Proyecto
-Este proyecto es una aplicación Todo List compuesta por dos partes: una API desarrollada en Node.js 
-con autenticación JWT y un frontend construido en Next.js. Permite a los usuarios iniciar sesión, 
-gestionar tareas y cerrar sesión de forma segura usando cookies.
+# 📝 Prueba Técnica – Miguel G.
 
-📋 Requerimientos
-### Backend
+📌 **Proyecto Todo List – API y Frontend**
+
+---
+
+## 🧾 Descripción del Proyecto
+
+Este proyecto es una aplicación **Todo List** compuesta por dos partes:
+
+- Una API desarrollada en **Node.js** con autenticación **JWT**
+- Un frontend construido en **Next.js**
+
+Permite a los usuarios iniciar sesión, gestionar tareas y cerrar sesión de forma segura usando **cookies**.
+
+---
+
+## 📋 Tecnologías Utilizadas
+
+### 🔧 Backend
 ```plaintext
 Node.js
 Express
-MongoDB 
+MongoDB
 JWT
 bcryptjs
 cookie-parser
-
-### Frontend
+🎨 Frontend
+plaintext
+Copiar
+Editar
 Next.js
-Bootstrap 
+Bootstrap
 Next Router
 HTTP Interceptors
-
 🚀 Instalación y Ejecución
-Requisitos previos
-    Node.js (v18 o superior)
-    MongoDB
-    Next.js instalado globalmente
+✅ Requisitos Previos
+Node.js (v18 o superior)
 
-    Backend
-        bash
-        Copiar código
-        cd backend
-        npm install
-        npm run dev
-        El servidor se levantará por defecto en http://localhost:5000 (segun configuracion)
+MongoDB
 
-    Frontend (Next.js)
-        bash
-        Copiar código
-        cd frontend
-        npm install
-        npm run dev
-        Next.js se ejecutará en http://localhost:3000 (puerto configurable)
+Next.js instalado globalmente
 
-## 📁 Estructura de Carpetas y Arquitectura
+🔌 Backend
+bash
+Copiar
+Editar
+cd backend
+npm install
+npm run dev
+El servidor se levantará por defecto en: http://localhost:5000
+(Según configuración)
 
-### backend
+💻 Frontend (Next.js)
+bash
+Copiar
+Editar
+cd frontend
+npm install
+npm run dev
+Next.js se ejecutará en: http://localhost:3000
+(Puerto configurable)
+
+📁 Estructura de Carpetas y Arquitectura
+📦 Backend
+plaintext
+Copiar
+Editar
 backend/
 ├── controllers/        # Lógica de negocio 
 ├── middleware/         # Middlewares personalizados
@@ -54,7 +74,10 @@ backend/
 ├── server.js           # Punto de entrada del backend
 ├── migration.js        # Archivo de migración de datos iniciales
 └── socket.js           # Conexión al websocket para notificaciones
-
+🧩 Frontend
+plaintext
+Copiar
+Editar
 frontend/
 └── src/
     └── app/
