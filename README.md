@@ -16,7 +16,6 @@ bcryptjs
 cookie-parser
 
 ### Frontend
-```plaintext
 Next.js
 Bootstrap 
 Next Router
@@ -47,7 +46,6 @@ Requisitos previos
 ## 📁 Estructura de Carpetas y Arquitectura
 
 ### backend
-```plaintext
 backend/
 ├── controllers/        # Lógica de negocio 
 ├── middleware/         # Middlewares personalizados
