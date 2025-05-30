@@ -25,7 +25,9 @@ MongoDB
 JWT
 bcryptjs
 cookie-parser
-🎨 Frontend
+
+---
+### 🎨 Frontend
 plaintext
 Copiar
 Editar
