@@ -25,49 +25,45 @@ MongoDB
 JWT
 bcryptjs
 cookie-parser
-
----
-### 🎨 Frontend
-plaintext
-Copiar
-Editar
+```
+### Frontend
+```plaintext
 Next.js
 Bootstrap
 Next Router
 HTTP Interceptors
-🚀 Instalación y Ejecución
-✅ Requisitos Previos
+```
+# 🚀 Instalación y Ejecución
+## ✅ Requisitos Previos
+```plaintext
 Node.js (v18 o superior)
-
 MongoDB
-
 Next.js instalado globalmente
-
-🔌 Backend
+```
+# 🔌 Backend
+```plaintext
 bash
-Copiar
-Editar
 cd backend
 npm install
 npm run dev
 El servidor se levantará por defecto en: http://localhost:5000
 (Según configuración)
+```
 
-💻 Frontend (Next.js)
+# 💻 Frontend (Next.js)
+```plaintext
 bash
-Copiar
-Editar
 cd frontend
 npm install
 npm run dev
 Next.js se ejecutará en: http://localhost:3000
 (Puerto configurable)
+```
 
-📁 Estructura de Carpetas y Arquitectura
-📦 Backend
-plaintext
-Copiar
-Editar
+## 📁 Estructura de Carpetas y Arquitectura
+# 📦 Backend
+
+```plaintext
 backend/
 ├── controllers/        # Lógica de negocio 
 ├── middleware/         # Middlewares personalizados
@@ -76,10 +72,10 @@ backend/
 ├── server.js           # Punto de entrada del backend
 ├── migration.js        # Archivo de migración de datos iniciales
 └── socket.js           # Conexión al websocket para notificaciones
-🧩 Frontend
-plaintext
-Copiar
-Editar
+```
+# 🧩 Frontend
+
+```plaintext
 frontend/
 └── src/
     └── app/
@@ -90,3 +86,5 @@ frontend/
         ├── types/           # Modelos utilizados dentro del aplicativo
         ├── utils/           # Funciones útiles
         └── app/             # Ruteo del aplicativo
+
+        ```
