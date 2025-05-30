@@ -18,7 +18,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Protect multiple routes
 export const config = {
   matcher: ['/todos/:path*', '/grupos/:path*'],
 };

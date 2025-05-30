@@ -1,191 +1,220 @@
 'use client';
-import classNames from 'classnames';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import API from '../../utils/api';
-import { Group } from '@/types/Group';
-import { setgroups } from 'process';
-import { Todo } from '@/types/todo';
-import { formatDateDDMMYYYY } from '@/utils/date.utils';
-import { useAuth } from '../context/AuthContext';
 
-export default function Todos() {
+import { useState, useEffect } from 'react';
+import { Group } from '@/types/Group';
+import { Todo } from '@/types/todo';
+import { useAuth } from '../context/AuthContext'; 
+import {
+  getGruposByUsuarioId,
+  createGrupo,
+  createTodo,
+  getTodosByGrupoId,
+  deleteTodoById,
+  toggleCompleteTodoById,
+} from '@/services';
+import { toast } from 'react-toastify';
+import { copyToClipboard } from '@/utils/copy.utils';
+import Sidebar from '@/components/sideBar/sideBar';
+import GroupForm from '@/components/groupForm/groupForm';
+import GroupList from '@/components/GroupList/groupList';
+import { useRouter, useSearchParams } from 'next/navigation';
+import API from '@/utils/api';
+
+export default function Grupos() {
+  const { user, loading } = useAuth();
+  const [grupoText, setGrupoText] = useState('');
+  const [grupoDescription, setGrupoDescription] = useState('');
+  const [todoText, setTodoText] = useState('');
+  const [todoDescription, setTodoDescription] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [grupos, setGrupos] = useState<Group[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const { user, logout, loading } = useAuth();
-  const [text, setText] = useState('');
-  const [description, setDescription] = useState('');
-
-  const [todoText, setTodoText] = useState('');
-
-const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-const [showSidebar, setShowSidebar] = useState(false);
-
-  const [copied, setCopied] = useState(false);
-  const textToCopy = "http://localhost:3000/join/";
-
-  const handleCopy = async (id: string) => {
-    try {
-      await navigator.clipboard.writeText(textToCopy+id);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy: ', err);
-    }
-  }
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
+  const userId = user?._id || ''; 
+const searchParams = useSearchParams();
+const id = searchParams.get('groupId');
+
+useEffect(() => {
     API.get('/auth/me')
-      .then(() => fetchGroups())
       .catch(() => router.push('/login'));
   }, []);
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    const params = new URLSearchParams(window.location.search);
+    const groupId = params.get('groupId');
+    if (groupId && grupos.length > 0) {
+      const group = grupos.find(g => g._id === groupId);
+      if (group) {
+        handleSelectGroup(group);
+      }
+    }
+  }, 0);
 
-  const fetchGroups = async () => {
-    const res = await API.get('/group');
-    setGrupos(res.data);
+  return () => clearTimeout(timeout);
+}, [grupos]);
+
+ useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login'); 
+    }
+  }, [loading, user, router]);
+  useEffect(() => {
+    if (userId) {
+      fetchGrupos();
+    }
+  }, [userId]);
+
+  const fetchGrupos = async () => {
+    try {
+      const gruposFromDb = await getGruposByUsuarioId(userId);
+      setGrupos(gruposFromDb);
+    } catch (error) {
+      toast.error('Error cargando grupos');
+      console.error(error);
+    }
   };
-const fetchTodosGrupo = async (group) => {
-  if (group?._id) {
-    const res = await API.get('/todos/grupo/' + group._id);
-    setTodos(res.data);
+
+  const handleCreateGrupo = async () => {
+    if (!grupoText.trim()) return;
+
+    try {
+      const grupo = await createGrupo(grupoText.trim(), grupoDescription.trim(), userId);
+      setGrupos([grupo, ...grupos]);
+      setGrupoText('');
+      setGrupoDescription('');
+      toast.success('Grupo creado');
+    } catch (error) {
+      toast.error('Error creando grupo');
+      console.error(error);
+    }
+  };
+
+  const handleSelectGroup = async (group: Group) => {
+    setSelectedGroup(group);
+    try {
+      const todosFromDb = await getTodosByGrupoId(group._id);
+      setTodos(todosFromDb);
+    } catch (error) {
+      toast.error('Error cargando tareas');
+    }
+  };
+
+  const handleAddTodo = async () => {
+    if (!todoText.trim() || !selectedGroup) return;
+
+    try {
+      const newTodo = await createTodo(todoText.trim(),todoDescription.trim(), selectedGroup._id, userId);
+      setTodos([newTodo, ...todos]);
+      setTodoText('');
+      setTodoDescription('');
+      toast.success('Que Hacer agregado');
+    } catch (error) {
+      toast.error('Error agregando tarea');
+      console.error(error);
+    }
+  };
+
+  const handleDeleteTodo = async (todoId: string) => {
+    try {
+      await deleteTodoById(todoId);
+      setTodos(todos.filter(t => t._id !== todoId));
+      toast.success('Que Hacer eliminado');
+    } catch (error) {
+      toast.error('Error eliminando tarea');
+      console.error(error);
+    }
+  };
+
+  const handleToggleTodo = async (todoId: string) => {
+    try {
+      const updatedTodo = await toggleCompleteTodoById(todoId, userId);
+      setTodos(todos.map(t => (t._id === updatedTodo._id ? updatedTodo : t)));
+    } catch (error) {
+      toast.error('Error actualizando tarea');
+      console.error(error);
+    }
+  };
+
+  const handleCopyInvite = (groupId: string) => {
+    copyToClipboard(`${window.location.origin}/join/${groupId}`);
+    setCopiedId(groupId);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (!user) {
+    return <div>No autorizado. Por favor inicia sesión.</div>;
+  }
+  const handleSaveTodo = async (updatedTodo: Todo) => {
+  try {
+    const response = await API.put(`/todos/${updatedTodo._id}`, updatedTodo);
+    console.log('response:', response);
+    console.log('response.data:', response.data);
+
+    const updated = response.data || updatedTodo;
+
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo._id === updated._id ? updated : todo
+      )
+    );
+  } catch (error) {
+    console.error('Error Guardando', error);
   }
 };
+const retornar = () => {
+  const currentParams = new URLSearchParams(window.location.search); 
+  currentParams.delete('groupId');
 
-  const addGroup= async () => {
-    const res = await API.post('/group', { text,description });
-    setGrupos([...grupos, res.data]);
-    setText('');
-  };
-  const addTodo = async () => {
-    const res = await API.post('/todos', { text:todoText, group:selectedGroup?._id });
-    setTodos([...todos, res.data]);
-    setTodoText('');
-  };
-const deleteTodo = async (id: string) => {
-    await API.delete(`/todos/${id}`);
-    setTodos(todos.filter(t => t._id !== id));
-  };
+  const newQuery = currentParams.toString();
+  const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ''}`;
 
-  const handleDoubleClick  = async (id: string) => {
-    await API.post(`/todos/completar/${id}`,{});
-    await fetchTodosGrupo(selectedGroup);
-
-  };
-
+  router.replace(newUrl);
+  setSelectedGroup(null);
+};
   return (
-    <div className='container my-5'>
-        <div className="row justify-content-center">
+    <div className="container py-5">
+      <h1>Mis Grupos</h1>
 
-    <div className="col-lg-6 col-md-8 col-9">
-            <div>
-                 <form id="todo-form" className="d-flex mb-3">
-                          <div className='flex-fill me-2'>
-                          <input
-                            type="text"
-                            id="task-input"
-                            className="form-control me-2"
-                            required
-                            value={text} onChange={e => setText(e.target.value)} placeholder="Nuevo Grupo"
-                            />
-                    </div>
-                    <div className='flex-fill me-2'>
-                    <input
-                        type="text"
-                        id="task-input"
-                        className="form-control me-2"
-                        required
-                        value={description} onChange={e => setDescription(e.target.value)} placeholder="Nuevo Grupo"
-                        />
-                    </div>
-                   
-                   <div>
-                     <button  className="btn btn-primary text-wrap"  onClick={addGroup}>Crear Nuevo Grupo</button>
-                   </div>
-                </form>
-            </div>
-      <div className="card shadow-sm">
-        <div className="card-header bg-primary text-white">
-          <h4 className="mb-0">Mis Grupos</h4>
-        </div>
-        <div className="card-body">
-          <ul className="list-group" id="task-list">
-              {grupos.map(todo => (
-              <li key={todo._id}
-                onClick={() => {
-                  setSelectedGroup(todo);
-                  setShowSidebar(true);
-                  fetchTodosGrupo(todo);
-                }}
-                className={classNames('list-group-item d-flex justify-content-between align-items-center', {
-                  'bg-light': selectedGroup?._id === todo._id
-                })}
-                style={{ cursor: 'pointer' }}
-                  >
-                <div>
-                    <span className='h5'>  {todo.name}</span>
-                    <small className='d-block'>{todo.description}</small>
-                </div>
-                <div>
-                  {todo.owner._id === user?._id && (
-                   <button className='btn btn-pine btn-sm' onClick={() => handleCopy(todo._id)}>
-                        {copied ? 'Copiado!' : 'Invitar'}
-                      </button>
-                  )}
-                   {todo.owner._id !== user?._id && (
-                    <span>Creado Por: {todo.owner.username}</span>
-                  )}
-                </div>
-                </li>
-              ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-   
-  </div>
-  {showSidebar && selectedGroup && (
-  <div className="sidebar bg-white shadow position-fixed top-0 end-0 h-100 p-4" style={{ width: '350px', zIndex: 1050 }}>
-    <div className="d-flex justify-content-between mb-3">
-      <h5>Grupo: {selectedGroup.name}</h5>
-      <button className="btn-close" onClick={() => setShowSidebar(false)}></button>
-    </div>
-  {todos.map(todo => (
-                <li key={todo._id}
-                className={classNames('list-group-item d-flex justify-content-between align-items-center mt-2')}
-              onDoubleClick={() => handleDoubleClick(todo._id)}>
-                
-                <div >
-                       <span  className={classNames('d-block',{
-                  "text-decoration-line-through": todo.completado == true,
-                })}>  {todo.text} </span>
-                  {todo.fechaHoraCompletado && <small className='d-block '>Completado {formatDateDDMMYYYY(todo.fechaHoraCompletado)}</small>}
-                </div>
+      <GroupForm
+        text={grupoText}
+        description={grupoDescription}
+        onTextChange={setGrupoText}
+        onDescriptionChange={setGrupoDescription}
+        onSubmit={handleCreateGrupo}
+      />
 
-                  <button className='btn btn-danger btn-sm' onClick={() => deleteTodo(todo._id)}>X</button>
-                </li>
-              ))}
-              <hr />
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      // Submit your value here
-      console.log("Adding value to group:", selectedGroup._id);
-    }}>
-      <div className="mb-3 d-flex">
-       <input
-              type="text"
-              id="task-input"
-              className="form-control me-2"
-              required
-               value={todoText} onChange={e => setTodoText(e.target.value)} placeholder="Nuevo Que Hacer"
-            />
-               <button  className="btn btn-success btn-sm"  onClick={addTodo}>Agregar</button>
-      </div>
-      
-    </form>
-  </div>
-)}
-    </div>
+      <GroupList
+        grupos={grupos}
+        userId={userId}
+        selectedGroupId={selectedGroup?._id}
+        onSelect={handleSelectGroup}
+        onCopy={handleCopyInvite}
+        copiedId={copiedId}
+      />
 
+      {selectedGroup && (
+        <Sidebar
+          group={selectedGroup}
+          todos={todos}
+          onClose={() => {
+            retornar();
+          }}
+          onAddTodo={handleAddTodo}
+          onChangeTodoText={setTodoText}
+          todoText={todoText}
+          onDelete={handleDeleteTodo}
+          onToggle={handleToggleTodo}
+
+          onChangeTodoDescription={setTodoDescription}
+          todoDescription={todoDescription}
+          onSave={handleSaveTodo} 
+        />
+      )}
+    </div>
   );
 }

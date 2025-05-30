@@ -1,10 +1,12 @@
 'use client';
-
 import { createContext, useContext, useEffect, useState } from 'react';
-import API from '../../utils/api'; // your Axios instance
+import API from '../../utils/api';
 import { useRouter } from 'next/navigation';
-import { User } from '@/types/User';
 
+interface User {
+  _id: string;
+  username: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data.user);
-    } catch (err) {
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -40,7 +42,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await API.post('/auth/logout');
     setUser(null);
     router.push('/login');
-    await fetchUser(); 
   };
 
   return (
@@ -52,6 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('Error');
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

@@ -1,3 +1,23 @@
 .mi-dropdown-menu-lg{
-    min-width: 270px !important;
+    min-width: 290px !important;
+    max-height: 300px;
+    overflow: auto;
+}
+
+.mi-dropdown-menu-lg::-webkit-scrollbar {
+  width: 4px; /* for vertical scrollbars */
+  height: 4px; /* for horizontal scrollbars */
+}
+
+.mi-dropdown-menu-lg::-webkit-scrollbar-thumb {
+  background-color: var(--bs-pine);
+  border-radius: 10px;
+}
+
+.mi-dropdown-menu-lg::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fs-xs{
+  font-size: 10px;
 }

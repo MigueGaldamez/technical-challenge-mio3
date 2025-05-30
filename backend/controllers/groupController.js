@@ -17,13 +17,13 @@ exports.joinGroup = async (req, res) => {
     const grupo = await Group.findOne({ _id: req.params.id });
 
     if (!grupo) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ message: 'Grupo No encontrado' });
     }
 
     const isAlreadyMember = grupo.members.includes(req.user.userId);
 
     if (isAlreadyMember) {
-      return res.status(400).json({ message: 'User is already a member' });
+      return res.status(400).json({ message: 'Usuario ya es Miembro' });
     }
 
     grupo.members.push(req.user.userId);
@@ -32,7 +32,7 @@ exports.joinGroup = async (req, res) => {
     res.status(201).json(grupo);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error del Servidor' });
   }
 };
 

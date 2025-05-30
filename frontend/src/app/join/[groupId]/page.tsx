@@ -26,7 +26,7 @@ export default function JoinPage({ params }: { params: { groupId: string } }) {
     };
 
 
-  if (error) return <div>{error}</div>;
+  if (error) return <div className='text-center my-5'><h1 className='text-faded'>Error </h1><h1 className='display-1'>{error}</h1></div>;
   if (!group) return <div>Loading...</div>;
 
   return <div className='text-center my-5'><h1 className='text-faded'>Felicidades te Uniste a </h1><h1 className='display-1'>{group.name}</h1></div>;

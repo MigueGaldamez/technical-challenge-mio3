@@ -365,3 +365,244 @@ a {
 [data-bs-theme="dark"] .toast-header {
   --#{$prefix}toast-header-color: #fff;
 }
+
+
+$theme-colors-variants: (
+  d: (
+    d1: 5%, d2: 15%, d3: 25%, d4: 35%, d5: 45%, d6: 55%, d7:65%, d8:75%
+  ),
+  l: (
+    l1: 5%, l2: 15%, l3: 25%, l4: 35%, l5: 45%, l6: 55%, l7:65%, l8:75%
+  )
+);
+
+$theme-colors-maps: ();
+
+@each $type, $variants in $theme-colors-variants {
+  @each $suffix, $percent in $variants {
+    $map-name: '#{$suffix}';
+    $theme-colors-maps: map-merge($theme-colors-maps, ($map-name: ()));
+    
+    @each $color, $value in $theme-colors {
+      $new-color: if($type == d, mix(black, $value, $percent), mix(white, $value, $percent));
+      $theme-colors-maps: map-merge($theme-colors-maps, (
+        $map-name: map-merge(map-get($theme-colors-maps, $map-name), ($color: $new-color))
+      ));
+    }
+  }
+}
+
+@mixin apply-colors($map, $suffix) {
+  @each $color, $value in $map {
+    .btn-#{$color}-#{$suffix} {
+      background-color: $value;
+      border-color: $value;
+
+      @if str-index($suffix, 'd') != null {
+        color: lighten($value, 30%);
+      } @else {
+        color: darken($value, 30%);
+      }
+    }
+    
+    .btn-#{$color}-#{$suffix}:hover {
+      @if str-index($suffix, 'd') != null {
+        background-color: lighten($value, 10%);
+      } @else {
+        background-color: darken($value, 10%);
+      }
+    }
+    
+    .bg-#{$color}-#{$suffix} {
+      background-color: $value !important;
+      
+      @if str-index($suffix, 'd') != null {
+        color: lighten($value, 40%) ;
+      } @else {
+        color: darken($value, 40%) ;
+      }
+    }
+  
+  /*Outline*/
+    .btn-outline-#{$color}-#{$suffix} {
+      border-color: $value;
+      color: $value;
+    }
+    .btn-outline-#{$color}-#{$suffix}:hover{
+      background-color: $value;
+      @if str-index($suffix, 'd') != null {
+        color: lighten($value, 40%) !important;
+      } @else {
+        color: darken($value, 40%) !important;
+      }
+    }
+    .bg-outline-#{$color}-#{$suffix}{
+      border-color: $value !important;
+      color: $value;
+    }
+    //directos
+    .bs-#{$color}-#{$suffix}{
+      border-left: 4px solid $value;
+      padding-left: 3px;
+    }
+    .be-#{$color}-#{$suffix}{
+      border-right: 4px solid $value;
+      padding-right: 3px;
+    }
+    .bt-#{$color}-#{$suffix}{
+      border-top: 4px solid $value;
+      padding-top: 3px;
+    }
+    .bb-#{$color}-#{$suffix}{
+      border-bottom: 4px solid $value;
+      padding-bottom: 3px;
+    }
+    .text-#{$color}-#{$suffix} {
+      color: $value;
+    }
+    .border-#{$color}-#{$suffix} {
+      border: 2px solid $value;
+    }
+    .hv-#{$color}-#{$suffix}:hover {
+      background-color: $value !important;
+    }
+    .hv-text-#{$color}-#{$suffix}:hover {
+      color: $value !important;
+    }
+    .hv-#{$color}-#{$suffix},
+    .hv-text-#{$color}-#{$suffix}{
+      transition: all 0.4s ease;
+    }
+    .hv-before-#{$color}-#{$suffix}:hover::before,
+    .hv-before-#{$color}-#{$suffix}:hover::after{
+      background-color: $value !important;
+    }
+    .hv-before-#{$color}-#{$suffix}::before,
+    .hv-before-#{$color}-#{$suffix}::after{
+      background-color: $value !important;
+    }
+    .after-bg-#{$color}-#{$suffix}::after{
+      background-color: $value !important;
+    }
+  }
+}
+
+@each $suffix, $map in $theme-colors-maps {
+  @include apply-colors($map, $suffix);
+}
+
+:root {
+  @each $suffix, $map in $theme-colors-maps {
+    @each $color, $value in $map {
+      --bs-#{$color}-#{$suffix}: #{$value};
+      --color-#{$color}-#{$suffix}: #{$value};
+    }
+  }
+}
+
+
+//colores
+@mixin apply-bootstrap-colors($map) {
+  @each $color, $value in $map {
+    .hv-#{$color}:hover{
+      background-color:  $value !important;
+    }
+    .hv-text-#{$color}:hover{
+      color:  $value !important;
+    }
+    .hv-#{$color},
+    .hv-text-#{$color}{
+      transition: all 0.4s ease;
+    }
+    .bs-#{$color}{
+      border-left: 4px solid $value;
+      padding-left: 3px;
+    }
+    .be-#{$color}{
+      border-right: 4px solid $value;
+      padding-right: 3px;
+    }
+    .bt-#{$color}{
+      border-top: 4px solid $value;
+      padding-top: 3px;
+    }
+    .bb-#{$color}{
+      border-bottom: 4px solid $value;
+      padding-bottom: 3px;
+    }
+
+    .hv-before-#{$color}:hover::before,
+    .hv-before-#{$color}:hover::after{
+      background-color: $value !important;
+    }
+    .hv-before-#{$color}::before,
+    .hv-before-#{$color}::after{
+      background-color: $value !important;
+    }
+
+    .bg-outline-#{$color}{
+      border-color: $value !important;
+      color: $value;
+      transition: background-color 0.5s ease;
+    }
+    .bg-outline-#{$color}:hover{
+      background-color: $value !important;
+    }
+
+    .after-bg-#{$color}::after{
+      background-color: $value !important;
+    }
+  }
+}
+@include apply-bootstrap-colors($theme-colors);
+
+
+.dh1 {
+  @include font-size($h1-font-size);
+}
+
+.dh2 {
+  @include font-size($h2-font-size);
+}
+
+.dh3 {
+  @include font-size($h3-font-size);
+}
+
+.dh4 {
+  @include font-size($h4-font-size);
+}
+
+.dh5 {
+  @include font-size($h5-font-size);
+}
+
+.dh6 {
+  @include font-size($h6-font-size);
+}
+
+
+$custom-spacers: (
+  6: 3rem,   // 6 × 0.5rem (Bootstrap scale)
+  7: 3.5rem  // 7 × 0.5rem
+);
+
+@mixin custom-spacing-utilities($map, $prefix, $property) {
+  @each $size, $value in $map {
+    .#{$prefix}-#{$size} { #{$property}: $value !important; }
+    .#{$prefix}t-#{$size} { #{$property}-top: $value !important; }
+    .#{$prefix}b-#{$size} { #{$property}-bottom: $value !important; }
+    .#{$prefix}s-#{$size} { #{$property}-left: $value !important; }
+    .#{$prefix}e-#{$size} { #{$property}-right: $value !important; }
+    .#{$prefix}x-#{$size} {
+      #{$property}-left: $value !important;
+      #{$property}-right: $value !important;
+    }
+    .#{$prefix}y-#{$size} {
+      #{$property}-top: $value !important;
+      #{$property}-bottom: $value !important;
+    }
+  }
+}
+@include custom-spacing-utilities($custom-spacers, 'p', 'padding');
+@include custom-spacing-utilities($custom-spacers, 'm', 'margin');

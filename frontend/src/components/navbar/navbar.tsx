@@ -39,7 +39,7 @@ export default function Navbar() {
            <i className="fa-solid fa-user me-2"></i> {user.username}
           </button>
           <ul className="dropdown-menu px-2">
-            <li className='btn btn-danger btn-sm w-100 '><a className="text-decoration-none" href="#" onClick={logout}>Cerrar Sesión</a>   </li>
+            <li className='btn btn-danger btn-sm w-100 ' onClick={logout}><a className="text-decoration-none" href="#" >Cerrar Sesión</a>   </li>
           </ul>
         </div>
         <div className='me-2'>
@@ -50,6 +50,7 @@ export default function Navbar() {
     </div>
   </div>
 </nav>
+
         </>
       ) : (
         <> <nav className="navbar navbar-expand-lg bg-primary text-light py-2"></nav></>

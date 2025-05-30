@@ -4,11 +4,24 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import API from '../../utils/api';
 import { Todo } from '../../types/todo';
-import { formatDateDDMMYYYY } from '@/utils/date.utils';
+import TodoForm from '@/components/todoForm/todoForm';
+import TodoItem from '@/components/taskItem/taskItem';
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import {
+  deleteTodoById,
+  toggleCompleteTodoById,
+  createTodoNormal,
+} from '@/services';
 
 export default function Todos() {
+  const { user, loading } = useAuth();
+  const userId = user?._id || '';
+
   const [todos, setTodos] = useState<Todo[]>([]);
   const [text, setText] = useState('');
+  const [description, setDescription] = useState('');
+
   const router = useRouter();
 
   useEffect(() => {
@@ -22,23 +35,60 @@ export default function Todos() {
     setTodos(res.data);
   };
 
-  const addTodo = async () => {
-    const res = await API.post('/todos', { text });
-    setTodos([...todos, res.data]);
-    setText('');
+
+  const handleAddTodo = async () => {
+    if (!text.trim()) return;
+    try {
+      const newTodo = await createTodoNormal(text.trim(), description.trim());
+      setTodos([newTodo, ...todos]);
+      setText('');
+      setDescription('');
+      toast.success('Que Hacer agregado');
+    } catch (error) {
+      toast.error('Error agregando tarea');
+      console.error(error);
+    }
   };
 
-  const deleteTodo = async (id: string) => {
-    await API.delete(`/todos/${id}`);
-    setTodos(todos.filter(t => t._id !== id));
-  };
+    const handleDeleteTodo = async (todoId: string) => {
+      try {
+        await deleteTodoById(todoId);
+        setTodos(todos.filter(t => t._id !== todoId));
+        toast.success('Que Hacer eliminado');
+      } catch (error) {
+        toast.error('Error eliminando tarea');
+        console.error(error);
+      }
+    };
+  
+    const handleToggleTodo = async (todoId: string) => {
+      try {
+        const updatedTodo = await toggleCompleteTodoById(todoId, userId);
+        setTodos(todos.map(t => (t._id === updatedTodo._id ? updatedTodo : t)));
+      } catch (error) {
+        toast.error('Error actualizando tarea');
+        console.error(error);
+      }
+    };
+const handleSaveTodo = async (updatedTodo: Todo) => {
+  try {
+  const response = await API.put(`/todos/${updatedTodo._id}`, updatedTodo);
+    console.log('response:', response);
+    console.log('response.data:', response.data);
 
-  const handleDoubleClick  = async (id: string) => {
-    await API.post(`/todos/completar/${id}`,{});
-    await fetchTodos();
-  };
+    const updated = response.data || updatedTodo;
+
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo._id === updated._id ? updated : todo
+      )
+    );
+  } catch (error) {
+    console.error('Error Guardando', error);
+  }
+};
   return (
-    <div className='container my-5'>
+    <div className='container mt-3'>
         <div className="row justify-content-center">
     <div className="col-lg-6 col-md-8 col-9">
       <div className="card shadow-sm">
@@ -47,35 +97,12 @@ export default function Todos() {
         </div>
         <div className="card-body">
           <div id="todo-form" className="d-flex mb-3">
-            <input
-              type="text"
-              id="task-input"
-              className="form-control me-2"
-              required
-               value={text} onChange={e => setText(e.target.value)}  onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  addTodo();
-                }
-              }} placeholder="Nuevo Que Hacer"
-            />
-            <button  className="btn btn-primary"  onClick={addTodo}>Add</button>
+               <TodoForm value={text} onChange={setText} onSubmit={handleAddTodo} description={description} onChangeDescription={setDescription}/>
           </div>
           <ul className="list-group" id="task-list">
-              {todos.map(todo => (
-                <li key={todo._id}
-                className={classNames('list-group-item d-flex justify-content-between align-items-center ')}
-                onDoubleClick={() => handleDoubleClick(todo._id)}>
-                
-                <div>
-                       <span  className={classNames('d-block',{
-                  "text-decoration-line-through": todo.completado == true,
-                })}>  {todo.text}</span>
-                  {todo.fechaHoraCompletado && <small className='d-block '>Completado {formatDateDDMMYYYY(todo.fechaHoraCompletado)}</small>}
-                </div>
-
-                  <button className='btn btn-danger btn-sm' onClick={() => deleteTodo(todo._id)}>X</button>
-                </li>
-              ))}
+             {todos.map(todo => (
+                    <TodoItem   onSave={handleSaveTodo}  key={todo._id} todo={todo} mostrarUsuario={false} onDelete={() => handleDeleteTodo(todo._id)} onDoubleClick={() => handleToggleTodo(todo._id)} />
+                  ))}
           </ul>
         </div>
       </div>

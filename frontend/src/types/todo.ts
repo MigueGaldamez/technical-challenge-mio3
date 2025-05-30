@@ -3,8 +3,8 @@ export interface Todo {
   text: string;
   completado?:boolean;
   fechaHoraCompletado?:Date,
-  usuarioCompleta:string;
-
+  usuarioCompleta:any;
+  description:string;
   user?:any;
 }
 

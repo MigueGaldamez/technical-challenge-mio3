@@ -4,9 +4,7 @@ const notificationSchema = new mongoose.Schema({
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
   description:    { type: String, default: 'Nueva Tarea Registrada' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  notificationSettings: {
-    receiveNotifications: { type: Boolean, default: true },
-  }
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 

@@ -1,49 +1,40 @@
 import axios from 'axios';
-
+import { toast } from 'react-toastify'; 
+console.log('Base URL:',process.env.NEXT_PUBLIC_API_URL,);
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL:process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
-// Add a request interceptor (optional)
 API.interceptors.request.use(
   (config) => {
-    // You could add tokens or headers here
-    // config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => {
-    console.log(error)
+    console.log(error);
     return Promise.reject(error);
   }
 );
 
-// Add a response interceptor (this is what you want)
 API.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-
-    // Log or handle error globally
-    console.error('API Error:', error.response?.data || error.message);
+    const message = error.response?.data?.message || error.message;
 
     if (typeof window !== 'undefined') {
       if (status === 401) {
-        // Unauthorized - redirect to login
-      }
-
-      if (status === 403) {
-        // Forbidden - maybe show a message
-        alert('You are not authorized to perform this action.');
-      }
-
-      if (status >= 500) {
-        // Server error
-        alert('Server error. Please try again later.');
+        toast.error(message);
+      } else if (status === 403) {
+        toast.error('No tienes permiso para hacer esto.');
+      } else if (status >= 500) {
+        //toast.error('Error del servidor. Inténtalo de nuevo.');
+      } else {
+        toast.error(message); 
       }
     }
 
-    return Promise.reject(error); // propagate to the calling code if needed
+    return Promise.reject(error);
   }
 );
 

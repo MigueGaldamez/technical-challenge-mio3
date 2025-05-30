@@ -5,19 +5,18 @@ import { useRouter } from 'next/navigation';
 import API from '../../utils/api';
 import { UserForm } from '../../types/todo';
 import { useAuth } from '../context/AuthContext';
-
+import { toast } from 'react-toastify';
 export default function Login() {
   const [form, setForm] = useState<UserForm>({ username: '', password: '' });
   const router = useRouter();
  const { refreshUser } = useAuth();
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
     const res = await API.post('/auth/login', form);
     router.push('/todos');
     await refreshUser();
-  } catch (err) {
-    alert('Login failed' +err);
+  } catch (err: any) {
   }
 };
 

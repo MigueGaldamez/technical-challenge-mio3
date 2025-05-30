@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import API from '../../utils/api';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Register() {
   const [form, setForm] = useState({ username: '', password: '' });
   const router = useRouter();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
     try {
       await API.post('/auth/register', form);
       router.push('/login');
     } catch (err) {
-      alert('Registration failed'+err);
     }
   };
 
